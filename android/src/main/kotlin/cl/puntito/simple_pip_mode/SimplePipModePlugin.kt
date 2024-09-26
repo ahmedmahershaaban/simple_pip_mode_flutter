@@ -12,6 +12,8 @@ import android.os.Build
 import android.util.Rational
 import androidx.annotation.NonNull
 import androidx.annotation.RequiresApi
+import androidx.core.content.ContextCompat
+import androidx.core.content.ContextCompat.RECEIVER_EXPORTED
 import cl.puntito.simple_pip_mode.Constants.EXTRA_ACTION_TYPE
 import cl.puntito.simple_pip_mode.Constants.SIMPLE_PIP_ACTION
 import cl.puntito.simple_pip_mode.actions.PipAction
@@ -62,7 +64,7 @@ class SimplePipModePlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
         }
       }
     }.also { broadcastReceiver = it }
-    context.registerReceiver(broadcastReceiver, IntentFilter(SIMPLE_PIP_ACTION))
+    ContextCompat.registerReceiver(context, broadcastReceiver, IntentFilter(SIMPLE_PIP_ACTION), RECEIVER_EXPORTED)
   }
 
   override fun onDetachedFromEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {
@@ -131,10 +133,11 @@ class SimplePipModePlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
     } else if (call.method == "setAutoPipMode") {
       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
         val aspectRatio = call.argument<List<Int>>("aspectRatio")
+        val autoEnter = call.argument<Boolean>("autoEnter")
         val seamlessResize = call.argument<Boolean>("seamlessResize")
         val params = PictureInPictureParams.Builder()
           .setAspectRatio(Rational(aspectRatio!![0], aspectRatio[1]))
-          .setAutoEnterEnabled(true)
+          .setAutoEnterEnabled(autoEnter!!)
           .setSeamlessResizeEnabled(seamlessResize!!)
           .setActions(actions)
 
